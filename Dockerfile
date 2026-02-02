@@ -1,13 +1,8 @@
-# Use Maven with JDK 21
 FROM maven:3.9.9-eclipse-temurin-21
-
-# Create a non-root user to avoid permission issues
-RUN useradd -ms /bin/bash appuser
-USER appuser
 
 WORKDIR /app
 
-# Copy pom.xml and download dependencies offline
+# Copy Maven config and download dependencies
 COPY pom.xml .
 RUN mvn -q dependency:go-offline
 
@@ -15,5 +10,5 @@ RUN mvn -q dependency:go-offline
 COPY src ./src
 COPY testng.xml .
 
-# Run tests AND generate Allure report inside container
+# Run tests AND generate Allure report
 CMD ["mvn", "test", "allure:report"]
