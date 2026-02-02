@@ -33,9 +33,8 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
-            --cache-from=type=local,src=/tmp/.buildx-cache \
-            --cache-to=type=local,dest=/tmp/.buildx-cache \
-            -t bookstore-api-tests .
+          --cache-from=type=local,src=/tmp/.buildx-cache \
+           -t bookstore-api-tests .
 
       # 5️⃣ Run API tests inside Docker
       - name: Run API tests in Docker
