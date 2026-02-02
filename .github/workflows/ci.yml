@@ -52,8 +52,9 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: target/allure-maven
-          keep_files: true  # Keep previous files if needed
+          publish_dir: target/allure-maven  # This folder contains index.html
+          keep_files: false                 # Overwrite everything in the branch
+          destination_dir: ''               # Deploy to root of gh-pages
 
       # Step 8: Print report URL in Actions summary
       - name: Allure report link
