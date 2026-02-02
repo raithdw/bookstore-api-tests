@@ -46,7 +46,8 @@ jobs:
         run: |
           mkdir -p target/allure-maven
           docker create --name temp bookstore-api-tests
-          docker cp temp:/app/target/allure-maven/. target/allure-maven/
+          # Copy from correct container path
+          docker cp temp:/app/target/site/allure-maven/. target/allure-maven/
           docker rm temp
 
       # 7️⃣ Upload raw Allure results
