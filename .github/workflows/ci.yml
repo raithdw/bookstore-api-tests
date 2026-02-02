@@ -16,11 +16,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Set up Docker Buildx (optional, for caching Docker layers)
+      # 2️⃣ Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # 3️⃣ Cache Docker layers to speed up builds
+      # 3️⃣ Cache Docker layers
       - name: Cache Docker layers
         uses: actions/cache@v4
         with:
@@ -36,14 +36,14 @@ jobs:
             --cache-from=type=local,src=/tmp/.buildx-cache \
             -t bookstore-api-tests .
 
-      # 5️⃣ Run API tests inside Docker
+      # 5️⃣ Run API tests AND generate Allure report inside Docker
       - name: Run API tests in Docker
         run: |
           docker run --rm \
-            -v ${{ github.workspace }}/target/allure-results:/app/target/allure-results \
+            -v ${{ github.workspace }}/target:/app/target \
             bookstore-api-tests
 
-      # 6️⃣ Upload raw Allure results (always, even if tests fail)
+      # 6️⃣ Upload raw Allure results
       - name: Upload Allure results
         if: always()
         uses: actions/upload-artifact@v4
@@ -51,17 +51,16 @@ jobs:
           name: allure-results
           path: target/allure-results
 
-      # 7️⃣ Generate Allure HTML report
-      - name: Generate Allure report
-        run: |
-          mkdir -p target/site/allure-maven
-          mvn clean allure:report
-
-      # 8️⃣ Deploy Allure report to GitHub Pages
-      - name: Deploy Allure report to GitHub Pages
+      # 7️⃣ Deploy Allure report to GitHub Pages
+      - name: Deploy Allure report
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./target/site/allure-maven
           publish_branch: gh-pages
           keep_files: true
+
+      # 8️⃣ Add direct link to Allure report in workflow summary
+      - name: Show Allure report link
+        run: |
+          echo "Allure report: https://${{ github.repository_owner }}.github.io/${{ github.repository }}/allure-maven/index.html" >> $GITHUB_STEP_SUMMARY

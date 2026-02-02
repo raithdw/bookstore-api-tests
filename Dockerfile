@@ -1,7 +1,14 @@
 FROM maven:3.9.9-eclipse-temurin-21
+
 WORKDIR /app
+
+# Copy Maven config and download dependencies
 COPY pom.xml .
 RUN mvn -q dependency:go-offline
+
+# Copy source code and test config
 COPY src ./src
 COPY testng.xml .
-CMD ["mvn", "test"]
+
+# Run tests AND generate Allure report inside container
+CMD ["mvn", "clean", "test", "allure:report"]
