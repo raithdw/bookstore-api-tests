@@ -1,67 +1,61 @@
-name: API Automation CI
+name: API Automation Tests
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-  api-tests:
-    name: Run API Automation Tests
-    runs-on: ubuntu-latest
+  run-tests-and-deploy:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write  # Required for GitHub Pages deploy
 
     steps:
-      # 1️⃣ Checkout repository
+      # Step 1: Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Set up Docker Buildx
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      # Step 2: Set up Docker (Ubuntu runners already have it)
+      - name: Set up Docker
+        run: docker --version
 
-      # 3️⃣ Cache Docker layers
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      # 4️⃣ Build Docker image
+      # Step 3: Build Docker image for tests
       - name: Build Docker image
-        run: |
-          docker build \
-            --cache-from=type=local,src=/tmp/.buildx-cache \
-            -t bookstore-api-tests .
+        run: docker build -t bookstore-api-tests .
 
-      # 5️⃣ Run API tests AND generate Allure report inside Docker
-      - name: Run API tests in Docker
+      # Step 4: Create local target folders for Allure
+      - name: Prepare target directories
+        run: |
+          mkdir -p target/allure-results
+          mkdir -p target/allure-maven
+
+      # Step 5: Run tests in Docker and generate Allure report
+      - name: Run tests and generate Allure report
         run: |
           docker run --rm \
             -v ${{ github.workspace }}/target:/app/target \
-            bookstore-api-tests
+            bookstore-api-tests \
+            bash -c "mvn test && mvn allure:report \
+              -Dallure.results.directory=/app/target/allure-results \
+              -Dallure.report.directory=/app/target/allure-maven"
 
-      # 6️⃣ Upload raw Allure results (artifact)
-      - name: Upload Allure results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-results
-          path: target/allure-results
+      # Step 6: Verify report exists
+      - name: Verify Allure report
+        run: |
+          echo "Report contents:"
+          ls -la target/allure-maven
 
-      # 7️⃣ Deploy Allure report to GitHub Pages under /allure-maven/
-      - name: Deploy Allure report
+      # Step 7: Deploy Allure report to GitHub Pages
+      - name: Deploy Allure report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GH_PAGES_TOKEN }}
-          publish_dir: target/site/allure-maven
-          publish_branch: gh-pages
-          destination_dir: allure-maven   # ✅ ensures URL is /allure-maven/
-          keep_files: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: target/allure-maven
+          keep_files: true  # Keep previous files if needed
 
-      # 8️⃣ Add direct link to Allure report in workflow summary
-      - name: Show Allure report link
+      # Step 8: Print report URL in Actions summary
+      - name: Allure report link
         run: |
-          echo "Allure report: https://${{ github.repository_owner }}.github.io/${{ github.repository }}/allure-maven/index.html" >> $GITHUB_STEP_SUMMARY
+          echo "Allure report: https://raithdw.github.io/bookstore-api-tests/allure-maven/index.html" >> $GITHUB_STEP_SUMMARY
