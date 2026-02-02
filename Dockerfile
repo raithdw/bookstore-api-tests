@@ -11,4 +11,4 @@ COPY src ./src
 COPY testng.xml .
 
 # Run tests AND generate Allure report inside container
-CMD ["mvn", "clean", "test", "allure:report"]
+CMD ["mvn", "test", "allure:report"]
