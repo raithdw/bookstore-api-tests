@@ -1,0 +1,10 @@
+<suite name="Bookstore API Suite" parallel="classes" thread-count="4">
+    <listeners>
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+    </listeners>
+    <test name="API Tests">
+        <packages>
+            <package name="com.bookstore.api.tests"/>
+        </packages>
+    </test>
+</suite>
