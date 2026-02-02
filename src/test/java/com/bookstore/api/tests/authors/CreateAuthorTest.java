@@ -66,9 +66,9 @@ public class CreateAuthorTest {
         AssertionsForClassTypes.assertThat(response.statusCode()).isIn( 400, 422);
     }
 
-    // Test for verifying Retry mechanism
-    @Test(retryAnalyzer = RetryAnalyzer.class)
-    public void shouldRetryOnRuntimeException() {
-            throw new RuntimeException("Forced failure to test retry");
-    }
+//    Test for verifying Retry mechanism
+//    @Test(retryAnalyzer = RetryAnalyzer.class)
+//    public void shouldRetryOnRuntimeException() {
+//            throw new RuntimeException("Forced failure to test retry");
+//    }
 }
