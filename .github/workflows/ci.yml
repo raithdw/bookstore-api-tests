@@ -59,4 +59,6 @@ jobs:
       # Step 8: Print report URL in Actions summary
       - name: Allure report link
         run: |
-          echo "Allure report: https://raithdw.github.io/bookstore-api-tests/allure-maven/index.html" >> $GITHUB_STEP_SUMMARY
+      - name: Allure report link
+        run: |
+          echo "Allure report: https://raithdw.github.io/bookstore-api-tests/index.html" >> $GITHUB_STEP_SUMMARY
