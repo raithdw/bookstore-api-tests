@@ -133,7 +133,7 @@ docker run -v "$(pwd)/target/allure-results:/app/target/allure-results" bookstor
 
 -   Latest test execution report is automatically published via GitHub Pages:
 
--   👉 **https://<YOUR_GITHUB_USERNAME>.github.io/<YOUR_REPO_NAME>/**
+-   👉 **https://raithdw.github.io/bookstore-api-tests/index.html**
 
 -   The report is updated on every push and pull request.
 
